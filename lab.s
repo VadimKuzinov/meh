@@ -38,11 +38,9 @@ _start:
         add     BYTE [rbp-1], 1         ;lines[i] = &arr[i*m]
 .L2:
         mov     al, BYTE [rbp-1]
-        mov     bl, BYTE [n]
-        dec     bl
-        cmp     al, bl
+        cmp     al, BYTE [n]
 
-        jle     .L3
+        jl      .L3
         mov     BYTE [rbp-2], 0
         jmp     .L4
 .L7:
@@ -68,19 +66,15 @@ _start:
         add     BYTE [rbp-3], 1         ;sums[i] += arr[i*m + j]
 .L5:
         mov     al, BYTE [rbp-3]
-        mov     bl, BYTE [m]
-        dec     bl
-        cmp     al, bl
+        cmp     al, BYTE [m]
 
-        jle     .L6
+        jl      .L6
         add     BYTE [rbp-2], 1
 .L4:
         mov     al, BYTE [rbp-2]
-        mov     bl, BYTE [n]
-        dec     bl
-        cmp     al, bl
+        cmp     al, BYTE [n]
 
-        jle     .L7                 
+        jl     .L7                 
         mov     al, BYTE [n]            ;
         dec     al                      ;
         mov     BYTE [rbp-4], al        ;initalizing step with value of n - 1
@@ -105,11 +99,11 @@ _start:
 %endif                                  ;
         jle     .L10                    ;
 
-        mov     al, BYTE [rbp-5]
-        cdqe
-        mov     rax, QWORD lines[rax*8]
-        mov     QWORD [rbp-31], rax
-
+        mov     al, BYTE [rbp-5]        ;
+        cdqe                            ;
+        mov     rax, QWORD lines[rax*8] ;
+        mov     QWORD [rbp-31], rax     ;
+                                        ;
         xor     rax, rax                ;
         xor     rdx, rdx                ;
         mov     dl, BYTE [rbp-5]        ;
@@ -152,11 +146,9 @@ _start:
         mov     dl, BYTE [rbp-5]        ;
         mov     al, BYTE [rbp-4]        ;
         add     al, dl                  ;
-        mov     bl, BYTE [n]            ;
-        dec     bl                      ;
-        cmp     al, bl                  ;
+        cmp     al, BYTE [n]            ;
                                         ;
-        jle     .L11                    ;check i + step < n
+        jl     .L11                     ;check i + step < n
                                         
         movzx   eax, BYTE [rbp-4]       ;
                                         ;
