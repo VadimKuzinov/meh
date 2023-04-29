@@ -79,10 +79,6 @@ _start:
 %endif                                  ;
         jle     .L10                    ;
 
-        movzx   rax, BYTE [rbp-5]       ;rax = i 
-        movzx   rbx, BYTE [rbp-4]       ;    
-        add     rbx, rax                ;rbx = i + step
-                                        
         mov     rcx, QWORD lines[rax*8] ;
         xchg    rcx, QWORD lines[rbx*8] ;
         mov     QWORD lines[rax*8], rcx ;swap lines[i], lines[i+step]      
