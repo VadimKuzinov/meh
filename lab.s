@@ -26,51 +26,41 @@ _start:
         mov     BYTE [rbp-1], 0
         jmp     .L2
 .L3:
-        movzx   rax, BYTE [m]
-        movzx   rbx, BYTE [rbp-1]
-        imul    rbx
-        lea     rdx, arr[rax]
-        mov     QWORD lines[rbx*8], rdx
-        add     BYTE [rbp-1], 1
+        movzx   rax, BYTE [m]           ;
+        movzx   rbx, BYTE [rbp-1]       ;
+        imul    rbx                     ;
+        lea     rdx, arr[rax]           ;
+        mov     QWORD lines[rbx*8], rdx ;
+        inc     BYTE [rbp-1]            ;lines[i] = &arr[i*m]
 .L2:
-        mov     al, BYTE [rbp-1]
-        cmp     al, BYTE [n]
+        mov     al, BYTE [rbp-1]        ;
+        cmp     al, BYTE [n]            ;
+        jl      .L3                     ;check i < n
 
-        jl      .L3
         mov     BYTE [rbp-2], 0
         jmp     .L4
 .L7:
         mov     BYTE [rbp-3], 0
         jmp     .L5
 .L6:
-        mov     al, BYTE [rbp-2]        ;
-        cdqe                            ;
-        mov     dl, BYTE sums[rax]      ;
-        mov     al, BYTE [rbp-2]        ;
-                                        ;
-        mov     bl, BYTE [m]            ;
-        imul    bl                      ;
-        mov     cl, al                  ;
-        mov     al, BYTE [rbp-3]        ;
-        add     al, cl                  ;
-        cdqe                            ;
-        mov     al, BYTE arr[rax]       ;
-        add     dl, al                  ;
-        mov     al, BYTE [rbp-2]        ;
-        cdqe                            ;
-        mov     BYTE sums[rax], dl      ;
-        add     BYTE [rbp-3], 1         ;sums[i] += arr[i*m + j]
+        movzx   rax, BYTE [m]           ;
+        movzx   rbx, BYTE [rbp-2]       ;
+        imul    rbx                     ;
+        movzx   rcx, BYTE [rbp-3]       ;
+        mov     dl, BYTE arr[rax+rcx]   ;
+        add     BYTE sums[rbx], dl      ;
+        inc     BYTE [rbp-3]            ;sums[i] += arr[i*m + j]
 .L5:
-        mov     al, BYTE [rbp-3]
-        cmp     al, BYTE [m]
+        mov     al, BYTE [rbp-3]        ;
+        cmp     al, BYTE [m]            ;
+        jl      .L6                     ;check j < m
 
-        jl      .L6
-        add     BYTE [rbp-2], 1
+        inc     BYTE [rbp-2]
 .L4:
-        mov     al, BYTE [rbp-2]
-        cmp     al, BYTE [n]
-
-        jl     .L7                 
+        mov     al, BYTE [rbp-2]        ;
+        cmp     al, BYTE [n]            ;
+        jl     .L7                      ;check i < n
+       
         mov     al, BYTE [n]            ;
         dec     al                      ;
         mov     BYTE [rbp-4], al        ;initalizing step with value of n - 1
@@ -102,8 +92,8 @@ _start:
         mov     BYTE sums[rax], cl      ;swap sums[i], sums[i+step]
 
 .L10:                                   
-        add     BYTE [rbp-5], 1         
-.L9:;!!!!!
+        inc     BYTE [rbp-5]
+.L9:
         movzx   rax, BYTE [rbp-5]       ;rax = i
         movzx   rbx, BYTE [rbp-4]       ;
         add     rbx, rax                ;rbx = i + step
