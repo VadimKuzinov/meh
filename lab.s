@@ -1,6 +1,6 @@
 section .data
-rows_qty equ        4
-columns_qty equ     2
+rows_qty equ    4
+columns_qty equ 2
 
 n:
         db      rows_qty
@@ -26,16 +26,12 @@ _start:
         mov     BYTE [rbp-1], 0
         jmp     .L2
 .L3:
-        mov     al, BYTE [rbp-1]        ;
-                                        ;
-        mov     bl, BYTE [m]            ;
-        imul    bl                      ;
-        cdqe                            ;
-        lea     rdx, arr[rax]           ;
-        mov     al, BYTE [rbp-1]        ;
-        cdqe                            ;
-        mov     QWORD lines[rax*8], rdx ;
-        add     BYTE [rbp-1], 1         ;lines[i] = &arr[i*m]
+        movzx   rax, BYTE [m]
+        movzx   rbx, BYTE [rbp-1]
+        imul    rbx
+        lea     rdx, arr[rax]
+        mov     QWORD lines[rbx*8], rdx
+        add     BYTE [rbp-1], 1
 .L2:
         mov     al, BYTE [rbp-1]
         cmp     al, BYTE [n]
@@ -84,80 +80,43 @@ _start:
         mov     BYTE [rbp-5], 0
         jmp     .L9
 .L11:
-        mov     al, BYTE [rbp-5]        ;
-        cdqe                            ;
-        mov     dl, BYTE sums[rax]      ;
-        mov     cl, BYTE [rbp-5]        ;
-        mov     al, BYTE [rbp-4]        ;
-        add     al, cl                  ;
-        cdqe                            ;
-        mov     al, BYTE sums[rax]      ;
+        mov     cl, BYTE sums[rax]      ;sums[i]
+
 %ifdef DESC                             ;check (desc)
-        cmp     al, dl                  ;sums[i] < sums[i + step]
+        cmp     BYTE sums[rbx], cl      ;sums[i+step] < sums[i]
 %else                                   ;check (asc)
-        cmp     dl, al                  ;sums[i + step] < sums[i]
+        cmp     cl, BYTE sums[rbx]      ;sums[i] < sums[i+step]
 %endif                                  ;
         jle     .L10                    ;
 
-        mov     al, BYTE [rbp-5]        ;
-        cdqe                            ;
-        mov     rax, QWORD lines[rax*8] ;
-        mov     QWORD [rbp-31], rax     ;
-                                        ;
-        xor     rax, rax                ;
-        xor     rdx, rdx                ;
-        mov     dl, BYTE [rbp-5]        ;
-        mov     al, BYTE [rbp-4]        ;
-        add     al, dl                  ;
-                                        ;
-        cdqe                            ;
-        mov     rdx, QWORD lines[rax*8] ;
-        mov     al, BYTE [rbp-5]        ;
-        cdqe                            ;
-        mov     QWORD lines[rax*8], rdx ;
-        mov     dl, BYTE [rbp-5]        ;
-        mov     al, BYTE [rbp-4]        ;
-        add     al, dl                  ;
-        cdqe                            ;
-        mov     rdx, QWORD [rbp-31]     ;
-        mov     QWORD lines[rax*8], rdx ;swap lines[i], lines[i + step]
+        movzx   rax, BYTE [rbp-5]       ;rax = i 
+        movzx   rbx, BYTE [rbp-4]       ;    
+        add     rbx, rax                ;rbx = i + step
+                                        
+        mov     rcx, QWORD lines[rax*8] ;
+        xchg    rcx, QWORD lines[rbx*8] ;
+        mov     QWORD lines[rax*8], rcx ;swap lines[i], lines[i+step]      
 
-        mov     al, BYTE [rbp-5]        ;
-        cdqe                            ;
-        mov     al, BYTE sums[rax]      ;
-        mov     BYTE [rbp-36], al       ;
-        mov     dl, BYTE [rbp-5]        ;
-        mov     al, BYTE [rbp-4]        ;
-        add     al, dl                  ;
-        cdqe                            ;
-        mov     dl, BYTE sums[rax]      ;
-        mov     al, BYTE [rbp-5]        ;
-        cdqe                            ;
-        mov     BYTE sums[rax], dl      ;
-        mov     dl, BYTE [rbp-5]        ;
-        mov     al, BYTE [rbp-4]        ;
-        add     al, dl                  ;
-        cdqe                            ;
-        mov     dl, BYTE [rbp-36]       ;
-        mov     BYTE sums[rax], dl      ;swap sums[i], sums[i + step]
+        mov     cl, BYTE sums[rax]      ;
+        xchg    cl, BYTE sums[rbx]      ;
+        mov     BYTE sums[rax], cl      ;swap sums[i], sums[i+step]
+
 .L10:                                   
         add     BYTE [rbp-5], 1         
-.L9:                                    
-        mov     dl, BYTE [rbp-5]        ;
-        mov     al, BYTE [rbp-4]        ;
-        add     al, dl                  ;
-        cmp     al, BYTE [n]            ;
-                                        ;
-        jl     .L11                     ;check i + step < n
+.L9:;!!!!!
+        movzx   rax, BYTE [rbp-5]       ;rax = i
+        movzx   rbx, BYTE [rbp-4]       ;
+        add     rbx, rax                ;rbx = i + step
+        cmp     bl, BYTE [n]            ;
+        jl     .L11                     ;check i+step<n
                                         
-        movzx   eax, BYTE [rbp-4]       ;
-                                        ;
+        movzx   edx, BYTE [rbp-4]       ;
         pxor    xmm0, xmm0              ;
-        cvtsi2sd xmm0, eax              ;
+        cvtsi2sd xmm0, edx              ;
         movsd   xmm1, QWORD [factor]    ;
         divsd   xmm0, xmm1              ;
-        cvttsd2si eax, xmm0             ;
-        mov     BYTE [rbp-4], al        ;divide step by factor
+        cvttsd2si edx, xmm0             ;
+        mov     BYTE [rbp-4], dl        ;divide step by factor
 .L8:
         cmp     BYTE [rbp-4], 0         ;
         jg      .L12                    ;check step >= 1
