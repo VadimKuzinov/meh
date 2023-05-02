@@ -107,6 +107,39 @@ _start:
         cmp     BYTE [rbp-4], 0         ;
         jg      .L12                    ;check step >= 1
 
+        mov     BYTE [rbp-6], 0
+        jmp     .L13
+.L14:
+        mov     BYTE [rbp-7], 0
+        jmp     .L15
+.L17:
+        inc     BYTE [rbp-6]
+        jmp     .L13
+.L16:
+        movzx   rax, BYTE [m]           ; 
+        movzx   rbx, BYTE [rbp-6]       ;
+        imul    rbx                     ;
+        movzx   rcx, BYTE [rbp-7]       ;
+        mov     rdx, QWORD lines[rbx*8] ;rdx = lines[i]
+        mov     dl, BYTE rdx[rcx]       ;dl = lines[i][j]    
+
+        lea     rcx, [rax+rcx]
+        lea     rax, [rbp-8]
+        sub     rax, rcx
+        mov     BYTE [rax], dl        
+
+        inc     BYTE [rbp-7]            ;j++
+.L15:
+        mov     al, BYTE [rbp-7]        ;
+        cmp     al, BYTE [m]            ;
+        jl      .L16                    ;check j < m
+        jmp     .L17
+.L13:
+        mov     al, BYTE [rbp-6]        ;
+        cmp     al, BYTE [n]            ;
+        jl      .L14                    ;check i < n
+
+
         mov     eax, 1
         mov     ebx, 0
         pop     rbp
