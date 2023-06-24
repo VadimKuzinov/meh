@@ -1,16 +1,16 @@
 section .data
 rows_qty equ    4
-columns_qty equ 2
+columns_qty equ 3
 
 n:
         db      rows_qty
 m:
         db      columns_qty
 arr:
-        db      60, 50 
-        db      40, 30
-        db      20, 10
-        db      5, 3
+        db      60, 50, -10
+        db      40, 30, -20
+        db      20, 10, -5
+        db      5, 3, -100
 lines:
         times   rows_qty*8 db 0
 sums:
